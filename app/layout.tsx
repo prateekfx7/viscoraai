@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
-import { TopNavbar } from "@/components/nav/TopNavbar";
 import { Sidebar } from "@/components/nav/Sidebar";
 
 export const metadata: Metadata = {
@@ -22,12 +21,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-[#F0F2F5] text-slate-900 min-h-screen flex flex-col antialiased selection:bg-amber-500/20 selection:text-amber-900">
+      <body className="bg-[#F0F2F5] text-slate-900 min-h-screen flex antialiased selection:bg-amber-500/20 selection:text-amber-900">
         <Providers>
-          <TopNavbar />
-          <div className="flex-1 flex w-full">
+          <div className="flex w-full min-h-screen">
             <Sidebar />
-            <main className="flex-1 lg:pl-16 p-4 sm:p-6 lg:p-8 max-w-[1720px] mx-auto w-full">
+            <main className="flex-1 lg:pl-64 xl:pl-72 p-4 sm:p-6 lg:p-8 max-w-[1850px] w-full mx-auto">
               {children}
             </main>
           </div>
