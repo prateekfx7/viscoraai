@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
+import { TopNavbar } from "@/components/nav/TopNavbar";
 import { Sidebar } from "@/components/nav/Sidebar";
-import { DemoScenarioBar } from "@/components/demo/DemoScenarioBar";
 
 export const metadata: Metadata = {
   title: "Oil India Limited — Well-to-Surface Digital Twin (SIH26120)",
@@ -16,16 +16,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="stylesheet" href="/tailwind.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-[#090D16] text-slate-100 min-h-screen flex antialiased selection:bg-amber-500/30 selection:text-amber-200">
+      <body className="bg-[#F0F2F5] text-slate-900 min-h-screen flex flex-col antialiased selection:bg-amber-500/20 selection:text-amber-900">
         <Providers>
-          <Sidebar />
-          <div className="lg:pl-72 flex-1 flex flex-col min-w-0 min-h-screen">
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pt-16 lg:pt-8">
-              <DemoScenarioBar />
+          <TopNavbar />
+          <div className="flex-1 flex w-full">
+            <Sidebar />
+            <main className="flex-1 lg:pl-16 p-4 sm:p-6 lg:p-8 max-w-[1720px] mx-auto w-full">
               {children}
             </main>
           </div>

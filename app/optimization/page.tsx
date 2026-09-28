@@ -4,23 +4,19 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTwinStore } from "@/lib/store/useTwinStore";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { RiskBadge } from "@/components/cards/RiskBadge";
 import {
   Activity,
   AlertTriangle,
   ArrowRight,
-  BarChart3,
   CheckCircle2,
   Cpu,
   Flame,
   Gauge,
   Lightbulb,
   ListChecks,
-  RotateCcw,
   Sliders,
   Sparkles,
-  TrendingDown,
   Zap,
 } from "lucide-react";
 
@@ -40,10 +36,9 @@ export default function OptimizationPage() {
       if (!res.ok) throw new Error("Failed to run optimization engine");
       return res.json();
     },
-    refetchInterval: 3500, // Sync with SCADA polling
+    refetchInterval: 3500,
   });
 
-  // What-if sandbox mutation
   const simMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/optimize", {
@@ -64,8 +59,8 @@ export default function OptimizationPage() {
 
   if (isLoading && !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-400">
-        <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-500">
+        <div className="w-10 h-10 border-3 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
         <span className="text-xs font-mono">Running Rule-Based Well-to-Surface Optimizer...</span>
       </div>
     );
@@ -73,11 +68,12 @@ export default function OptimizationPage() {
 
   if (isError || !data) {
     return (
-      <div className="p-6 rounded-xl bg-rose-950/20 border border-rose-500/30 text-rose-300">
-        <p className="font-bold">Error executing optimizer engine</p>
+      <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-soft text-slate-800 max-w-lg mx-auto text-center mt-12">
+        <AlertTriangle className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+        <p className="font-bold text-base">Error executing optimizer engine</p>
         <button
           onClick={() => refetch()}
-          className="mt-3 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-mono"
+          className="mt-4 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono shadow-md hover:bg-slate-800"
         >
           Retry Engine
         </button>
@@ -85,48 +81,54 @@ export default function OptimizationPage() {
     );
   }
 
-  const { well, optimization, engine } = data;
+  const { well, optimization } = data;
   const opt = simMutation.data?.optimization || optimization;
   const isEmergency = opt.risk_level === "RED";
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Well-to-Surface Optimization Engine"
-        subtitle="Rule-based, explainable physics advisor coupling reservoir thermal dissipation with sucker rod kinematics for Baghewala Field heavy oil wells."
-        badge={<RiskBadge level={opt.risk_level} size="md" />}
-        onRefresh={() => refetch()}
-        isFetching={isFetching}
-        actions={
+    <div className="space-y-6 pb-8">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+            Well-to-Surface Optimization Engine
+          </h1>
+          <p className="text-xs text-slate-500 font-mono mt-0.5">
+            Rule-based, explainable physics advisor coupling reservoir thermal dissipation with sucker rod kinematics.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <RiskBadge level={opt.risk_level} size="md" />
           <button
             onClick={() => setSimulatorOpen(!simulatorOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-mono font-semibold shadow-soft transition-all"
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>{simulatorOpen ? "Close What-If Sandbox" : "What-If Simulator"}</span>
+            <Sliders className="w-3.5 h-3.5 text-amber-600" />
+            <span>{simulatorOpen ? "Close Sandbox" : "What-If Simulator"}</span>
           </button>
-        }
-      />
+        </div>
+      </div>
 
-      {/* What-If Simulator Sandbox Drawer */}
+      {/* What-If Simulator Sandbox */}
       {simulatorOpen && (
-        <div className="rounded-xl bg-slate-900 border border-amber-500/40 p-5 shadow-2xl transition-all">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div className="rounded-3xl bg-white border border-amber-300 p-6 shadow-card transition-all">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <h3 className="text-sm font-bold font-mono text-white uppercase">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h3 className="text-sm font-bold font-sans text-slate-900 uppercase">
                 What-If Parameter Sandbox (Interactive Engineering Test)
               </h3>
             </div>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-slate-500">
               Test how the rule-based logic responds to custom viscosity or SPM inputs
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-4">
             <div>
-              <label className="text-xs font-mono text-slate-400 block mb-1">
-                Pump Speed (SPM): <span className="text-white font-bold">{simSpm} SPM</span>
+              <label className="text-xs font-mono text-slate-600 block mb-1.5">
+                Pump Speed (SPM): <span className="text-slate-900 font-bold">{simSpm} SPM</span>
               </label>
               <input
                 type="range"
@@ -140,8 +142,8 @@ export default function OptimizationPage() {
             </div>
 
             <div>
-              <label className="text-xs font-mono text-slate-400 block mb-1">
-                Crude Viscosity (cP): <span className="text-white font-bold">{simVisc} cP</span>
+              <label className="text-xs font-mono text-slate-600 block mb-1.5">
+                Crude Viscosity (cP): <span className="text-slate-900 font-bold">{simVisc} cP</span>
               </label>
               <input
                 type="range"
@@ -155,14 +157,14 @@ export default function OptimizationPage() {
             </div>
 
             <div className="flex items-center gap-3 pt-4">
-              <label className="text-xs font-mono text-slate-300 flex items-center gap-2 cursor-pointer">
+              <label className="text-xs font-mono text-slate-700 flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={simForceFloating}
                   onChange={(e) => setSimForceFloating(e.target.checked)}
-                  className="rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0 cursor-pointer"
+                  className="rounded bg-slate-100 border-slate-300 text-amber-600 focus:ring-0 cursor-pointer"
                 />
-                <span>Simulate Rod-Floating Trigger</span>
+                <span className="font-semibold">Simulate Rod-Floating Trigger</span>
               </label>
             </div>
           </div>
@@ -171,14 +173,14 @@ export default function OptimizationPage() {
             <button
               onClick={() => simMutation.mutate()}
               disabled={simMutation.isPending}
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs font-mono uppercase tracking-wider transition-colors shadow-md"
+              className="px-5 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs font-mono uppercase tracking-wider transition-colors shadow-md"
             >
-              {simMutation.isPending ? "Executing Model..." : "Run Sandbox Optimizer"}
+              {simMutation.isPending ? "Evaluating..." : "Run Sandbox Optimizer"}
             </button>
             {simMutation.data && (
               <button
                 onClick={() => simMutation.reset()}
-                className="text-xs font-mono text-slate-400 hover:text-white underline"
+                className="text-xs font-mono text-slate-500 hover:text-slate-900 underline"
               >
                 Reset to Live Telemetry
               </button>
@@ -189,19 +191,19 @@ export default function OptimizationPage() {
 
       {/* CORE HERO CARD: Optimizer Recommendations */}
       <div
-        className={`rounded-2xl border p-6 transition-all duration-300 ${
+        className={`rounded-3xl border p-6 transition-all duration-300 shadow-soft ${
           isEmergency
-            ? "bg-rose-950/30 border-rose-500/50 shadow-2xl shadow-rose-950/40"
-            : "bg-slate-900/90 border-slate-800"
+            ? "bg-rose-50/70 border-rose-300 shadow-card"
+            : "bg-white border-slate-200/90"
         }`}
       >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800/80">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-200/80">
           <div>
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1.5 mb-1">
               <Cpu className="w-4 h-4" />
               <span>Current Advisory Output</span>
             </span>
-            <h2 className="text-2xl font-bold text-white font-mono">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-sans">
               {isEmergency
                 ? "Immediate VFD Speed Throttling Required"
                 : "Parameters Operating Within Thermal Sweet Spot"}
@@ -214,9 +216,7 @@ export default function OptimizationPage() {
               size="lg"
               labelOverride={
                 isEmergency
-                  ? "CRITICAL ROD-FLOATING (THROTTLE REQUIRED)"
-                  : opt.risk_level === "AMBER"
-                  ? "ELEVATED DRAG (PREVENTIVE ADJUSTMENT)"
+                  ? "CRITICAL: THROTTLE TO 3.2 SPM"
                   : "OPTIMAL PARAMETERS"
               }
             />
@@ -226,7 +226,7 @@ export default function OptimizationPage() {
         {/* Triple Parameter Recommendation Display */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
           {/* 1. Recommended SPM */}
-          <div className="rounded-xl bg-slate-950/80 border border-slate-800 p-5">
+          <div className="rounded-2xl bg-[#1A1E26] text-white p-5 shadow-darkCard">
             <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
               <span className="uppercase">Recommended SPM</span>
               <Gauge className="w-4 h-4 text-sky-400" />
@@ -237,66 +237,66 @@ export default function OptimizationPage() {
               </span>
               <span className="text-sm font-semibold font-mono text-slate-400">SPM</span>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-900 text-xs font-mono flex items-center justify-between">
-              <span className="text-slate-400">Current Speed:</span>
-              <span className={`font-bold ${isEmergency ? "text-rose-400 line-through" : "text-slate-300"}`}>
+            <div className="mt-3 pt-3 border-t border-slate-800 text-xs font-mono flex items-center justify-between text-slate-400">
+              <span>Current Speed:</span>
+              <span className={`font-bold ${isEmergency ? "text-rose-400 line-through" : "text-white"}`}>
                 {opt.current_spm} SPM
               </span>
             </div>
           </div>
 
           {/* 2. Recommended Stroke Length */}
-          <div className="rounded-xl bg-slate-950/80 border border-slate-800 p-5">
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-soft">
             <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
               <span className="uppercase">Recommended Stroke</span>
-              <Activity className="w-4 h-4 text-emerald-400" />
+              <Activity className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold font-mono text-white">
+              <span className="text-4xl font-extrabold font-mono text-slate-900">
                 {opt.recommended_stroke}&quot;
               </span>
               <span className="text-sm font-semibold font-mono text-slate-400">Inches</span>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-900 text-xs font-mono flex items-center justify-between">
-              <span className="text-slate-400">Current Stroke:</span>
-              <span className="font-bold text-slate-300">{opt.current_stroke}&quot;</span>
+            <div className="mt-3 pt-3 border-t border-slate-100 text-xs font-mono flex items-center justify-between text-slate-500">
+              <span>Current Stroke:</span>
+              <span className="font-bold text-slate-900">{opt.current_stroke}&quot;</span>
             </div>
           </div>
 
           {/* 3. Next CSS Trigger */}
-          <div className="rounded-xl bg-slate-950/80 border border-slate-800 p-5">
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-soft">
             <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
               <span className="uppercase">Next CSS Trigger</span>
-              <Flame className="w-4 h-4 text-orange-400" />
+              <Flame className="w-4 h-4 text-orange-500" />
             </div>
-            <div className="text-lg font-bold font-mono text-amber-300 leading-tight">
+            <div className="text-lg font-bold font-mono text-amber-700 leading-tight">
               {opt.next_cycle_trigger.replace(/_/g, " ")}
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-900 text-xs font-mono flex items-center justify-between">
-              <span className="text-slate-400">Active Cycle:</span>
-              <span className="font-bold text-white">Day {opt.cycle_day}</span>
+            <div className="mt-3 pt-3 border-t border-slate-100 text-xs font-mono flex items-center justify-between text-slate-500">
+              <span>Active Cycle:</span>
+              <span className="font-bold text-slate-900">Day {opt.cycle_day}</span>
             </div>
           </div>
         </div>
 
         {/* Explainable Reasoning Callout Box */}
-        <div className="rounded-xl bg-slate-950 border border-slate-800 p-5">
-          <div className="flex items-center gap-2 mb-2 text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
-            <Lightbulb className="w-4 h-4" />
+        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-soft">
+          <div className="flex items-center gap-2 mb-2 text-xs font-mono font-bold uppercase tracking-wider text-amber-700">
+            <Lightbulb className="w-4 h-4 text-amber-600" />
             <span>Explainable Physics Reasoning (Engine Diagnostics)</span>
           </div>
-          <p className="text-sm text-slate-200 font-mono leading-relaxed bg-slate-900/60 rounded-lg p-4 border border-slate-800">
+          <p className="text-xs sm:text-sm text-slate-800 font-mono leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-200/80">
             &quot;{opt.reasoning}&quot;
           </p>
         </div>
       </div>
 
-      {/* Action Items Checklist for Field Operations */}
+      {/* Field Protocol & Impact Action */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-xl bg-slate-950 border border-slate-800 p-5">
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
           <div className="flex items-center gap-2 mb-4">
-            <ListChecks className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-xs font-mono font-bold uppercase text-slate-300">
+            <ListChecks className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-sans">
               Operational Action Checklist (Field Protocol)
             </h3>
           </div>
@@ -305,9 +305,9 @@ export default function OptimizationPage() {
             {opt.action_items.map((item: string, idx: number) => (
               <div
                 key={idx}
-                className="flex items-start gap-3 bg-slate-900/80 rounded-lg p-3 border border-slate-800/80 text-xs font-mono text-slate-300"
+                className="flex items-start gap-3 bg-slate-50 rounded-2xl p-3 border border-slate-100 text-xs font-mono text-slate-700"
               >
-                <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 text-[10px] font-bold">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px] font-bold">
                   {idx + 1}
                 </div>
                 <span className="leading-relaxed">{item}</span>
@@ -316,57 +316,62 @@ export default function OptimizationPage() {
           </div>
         </div>
 
-        {/* Projected Impact & Field Economics */}
-        <div className="rounded-xl bg-slate-950 border border-slate-800 p-5 flex flex-col justify-between">
+        {/* Projected Impact & Vibrant Green CTA */}
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-mono font-bold uppercase text-slate-300">
+              <Zap className="w-4 h-4 text-amber-500" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-sans">
                 Projected Impact on Lifting Performance
               </h3>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-slate-900/80 rounded-lg p-3 border border-slate-800">
-                <span className="text-[10px] font-mono uppercase text-slate-400 block">
+              <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+                <span className="text-[10px] font-mono uppercase text-slate-500 block">
                   Power Savings
                 </span>
-                <span className="text-xl font-bold font-mono text-amber-400">
+                <span className="text-xl font-extrabold font-mono text-amber-600">
                   {opt.expected_energy_savings_pct}%
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
+                <span className="text-[10px] text-slate-500 block mt-0.5">
                   -{opt.expected_energy_delta_kwh} kWh/bbl lifted
                 </span>
               </div>
 
-              <div className="bg-slate-900/80 rounded-lg p-3 border border-slate-800">
-                <span className="text-[10px] font-mono uppercase text-slate-400 block">
+              <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+                <span className="text-[10px] font-mono uppercase text-slate-500 block">
                   SOR Target
                 </span>
-                <span className="text-xl font-bold font-mono text-emerald-400">
+                <span className="text-xl font-extrabold font-mono text-emerald-600">
                   3.25 t/t
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
+                <span className="text-[10px] text-slate-500 block mt-0.5">
                   vs 4.75 conventional baseline
                 </span>
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed font-mono">
-              By matching SPM directly to heavy crude terminal fall velocity, polished rod downstroke shock
-              is eradicated, preventing costly sucker rod parting workovers (average savings: ₹18–25 Lakhs per avoided failure).
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
+              Matching SPM directly to heavy crude terminal fall velocity eliminates sucker rod compression buckling, avoiding catastrophic rod parting workovers (average savings: ₹18–25 Lakhs per failure).
             </p>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-900 flex items-center justify-between">
-            <span className="text-xs font-mono text-slate-400">View detailed metrics</span>
+          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
             <Link
               href="/kpi"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:text-emerald-300 font-bold"
+              className="text-xs font-mono font-bold text-slate-700 hover:text-slate-900 underline"
             >
-              <span>Explore KPI & Impact Dashboard</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              Explore Full KPI Metrics →
             </Link>
+
+            <button
+              onClick={() => refetch()}
+              className="px-6 py-3 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 font-bold text-xs font-mono uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <Zap className="w-4 h-4 fill-slate-950" />
+              <span>Apply VFD Optimization</span>
+            </button>
           </div>
         </div>
       </div>

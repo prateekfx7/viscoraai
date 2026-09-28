@@ -3,23 +3,18 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTwinStore } from "@/lib/store/useTwinStore";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { StatusCard } from "@/components/cards/StatusCard";
 import { SORTrend } from "@/components/charts/SORTrend";
 import { EnergyTrend } from "@/components/charts/EnergyTrend";
 import {
   ArrowDownRight,
   ArrowUpRight,
   Award,
-  BarChart3,
   Calendar,
   CheckCircle2,
   Coins,
   Droplets,
   Flame,
-  LineChart,
   ShieldCheck,
-  TrendingDown,
   Zap,
 } from "lucide-react";
 
@@ -38,8 +33,8 @@ export default function KpiPage() {
 
   if (isLoading && !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-400">
-        <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-500">
+        <div className="w-10 h-10 border-3 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
         <span className="text-xs font-mono">Aggregating SOR and Lifting Efficiency Analytics...</span>
       </div>
     );
@@ -47,11 +42,11 @@ export default function KpiPage() {
 
   if (isError || !data) {
     return (
-      <div className="p-6 rounded-xl bg-rose-950/20 border border-rose-500/30 text-rose-300">
+      <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-soft text-slate-800 max-w-lg mx-auto text-center mt-12">
         <p className="font-bold">Error loading KPI dashboard</p>
         <button
           onClick={() => refetch()}
-          className="mt-3 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-mono"
+          className="mt-4 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono"
         >
           Retry
         </button>
@@ -62,126 +57,131 @@ export default function KpiPage() {
   const { summary, trendTimeline, demoScenarioActive } = data;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="KPI & Impact Analysis Dashboard"
-        subtitle="Quantifying Steam-to-Oil Ratio (SOR) efficiency, electrical lifting energy reduction, and Baghewala Field operational savings."
-        badge={
-          <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-mono px-3 py-1 rounded-full font-semibold">
-            JUDGE PRESENTATION VIEW
-          </span>
-        }
-        onRefresh={() => refetch()}
-        isFetching={isFetching}
-      />
+    <div className="space-y-6 pb-8">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+            KPI & Impact Analysis Dashboard
+          </h1>
+          <p className="text-xs text-slate-500 font-mono mt-0.5">
+            Quantifying Steam-to-Oil Ratio (SOR) efficiency, electrical lifting energy reduction, and Baghewala Field operational savings.
+          </p>
+        </div>
+        <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-mono px-3.5 py-1.5 rounded-full font-bold">
+          JUDGE PRESENTATION VIEW
+        </span>
+      </div>
 
       {/* Real-time Demo Hook Callout (Before / After Delta) */}
       {demoScenarioActive ? (
-        <div className="rounded-xl bg-rose-950/40 border border-rose-500/50 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="rounded-3xl bg-rose-50 border border-rose-300 p-5 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400 shrink-0">
-              <Zap className="w-5 h-5 text-rose-400 animate-pulse" />
+            <div className="p-2.5 rounded-2xl bg-rose-600 text-white shrink-0 shadow-sm">
+              <Zap className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div>
-              <span className="text-xs font-mono font-bold uppercase text-rose-300">
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-900 font-sans">
                 Live Scenario Impact Delta: Uncorrected Rod-Floating vs Optimized SPM
               </span>
-              <p className="text-xs text-rose-200 mt-0.5 max-w-3xl">
+              <p className="text-xs text-rose-800 mt-1 max-w-3xl leading-relaxed">
                 Unthrottled pump at 5.8 SPM causes gear over-torque and consumes <strong>98.4 kWh/bbl</strong> with immediate rod parting hazard.
                 Applying twin recommendation (3.2 SPM) brings lifting power down to <strong>68.5 kWh/bbl</strong> (<strong>-29.9 kWh/bbl savings</strong>).
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono font-bold px-3 py-1.5 rounded bg-emerald-600 text-white shrink-0">
+          <span className="text-xs font-mono font-bold px-4 py-2 rounded-2xl bg-[#22C55E] text-slate-950 shrink-0 shadow-md">
             30.2% Net Power Saved
           </span>
         </div>
       ) : (
-        <div className="rounded-xl bg-slate-900 border border-slate-800 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-4 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Award className="w-5 h-5 text-amber-400 shrink-0" />
+            <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
+              <Award className="w-5 h-5" />
+            </div>
             <div>
-              <span className="text-xs font-mono font-bold uppercase text-slate-300">
+              <span className="text-xs font-bold uppercase text-slate-900 font-sans">
                 Digital Twin Validation vs Oil India Limited Baghewala Baselines
               </span>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
                 Continuous closed-loop optimization achieves double-digit reduction in both steam intensity and pump wear.
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono text-slate-300 bg-slate-800 px-3 py-1 rounded border border-slate-700">
+          <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
             Field Validated
           </span>
         </div>
       )}
 
-      {/* Main Impact Comparison Cards (Judge-facing presentation metrics) */}
+      {/* Main Impact Comparison Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: SOR */}
-        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-5">
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
           <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
             <span className="uppercase">Steam-Oil Ratio (SOR)</span>
-            <Flame className="w-4 h-4 text-orange-400" />
+            <Flame className="w-4 h-4 text-orange-500" />
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-emerald-400">
+            <span className="text-3xl font-extrabold font-mono text-emerald-600">
               {summary.optimized.sor}
             </span>
             <span className="text-xs font-mono text-slate-400">t/t (Optimized)</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
             <ArrowDownRight className="w-4 h-4" />
-            <span className="font-bold">-{summary.improvements.sor_reduction_pct}% Steam Reduction</span>
+            <span>-{summary.improvements.sor_reduction_pct}% Steam Reduction</span>
           </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800/80">
+          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
             Baseline: {summary.baseline.sor} t/t
           </div>
         </div>
 
         {/* Metric 2: Energy per barrel */}
-        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-5">
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
           <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
             <span className="uppercase">Lifting Energy</span>
-            <Zap className="w-4 h-4 text-amber-400" />
+            <Zap className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-amber-400">
+            <span className="text-3xl font-extrabold font-mono text-amber-600">
               {summary.optimized.energy_kwh_bbl}
             </span>
             <span className="text-xs font-mono text-slate-400">kWh/bbl</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
             <ArrowDownRight className="w-4 h-4" />
-            <span className="font-bold">-{summary.improvements.energy_savings_pct}% Power Conserved</span>
+            <span>-{summary.improvements.energy_savings_pct}% Power Conserved</span>
           </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800/80">
+          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
             Baseline: {summary.baseline.energy_kwh_bbl} kWh/bbl
           </div>
         </div>
 
         {/* Metric 3: Production rate */}
-        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-5">
+        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
           <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
             <span className="uppercase">Net Heavy Crude Lift</span>
-            <Droplets className="w-4 h-4 text-sky-400" />
+            <Droplets className="w-4 h-4 text-sky-500" />
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-sky-400">
+            <span className="text-3xl font-extrabold font-mono text-sky-600">
               {summary.optimized.production_bpd}
             </span>
             <span className="text-xs font-mono text-slate-400">bpd</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
             <ArrowUpRight className="w-4 h-4" />
-            <span className="font-bold">+{summary.improvements.production_lift_pct}% Production Lift</span>
+            <span>+{summary.improvements.production_lift_pct}% Production Lift</span>
           </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800/80">
+          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
             Baseline: {summary.baseline.production_bpd} bpd
           </div>
         </div>
 
         {/* Metric 4: Annualized Economics */}
-        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-5">
+        <div className="rounded-3xl bg-[#1A1E26] text-white p-5 shadow-darkCard">
           <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
             <span className="uppercase">Baghewala Field OPEX</span>
             <Coins className="w-4 h-4 text-emerald-400" />
@@ -192,11 +192,11 @@ export default function KpiPage() {
             </span>
             <span className="text-xs font-mono text-slate-400">Crores/yr</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-slate-300 mt-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2">
+            <ShieldCheck className="w-4 h-4" />
             <span>Payback: {summary.fieldEconomics.payback_period_months} months</span>
           </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800/80">
+          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800">
             Steam saved: {summary.fieldEconomics.steam_saved_tonnes_yr.toLocaleString()} tonnes/yr
           </div>
         </div>
@@ -213,12 +213,12 @@ export default function KpiPage() {
       </div>
 
       {/* 30-Day Historical Snapshot Table */}
-      <div className="rounded-xl bg-slate-950 border border-slate-800 p-5">
+      <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-mono font-bold uppercase text-slate-300">
-              30-Day Telemetry Snapshot Log (Baghewala South Well BGW-04)
+            <Calendar className="w-4 h-4 text-amber-500" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-sans">
+              30-Day Telemetry Snapshot Log (Well BGW-04)
             </h3>
           </div>
           <span className="text-[11px] font-mono text-slate-400">
@@ -229,7 +229,7 @@ export default function KpiPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+              <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px]">
                 <th className="py-2.5 px-3">Date</th>
                 <th className="py-2.5 px-3">Control Regime</th>
                 <th className="py-2.5 px-3">SOR (t/t)</th>
@@ -238,38 +238,38 @@ export default function KpiPage() {
                 <th className="py-2.5 px-3">Efficiency Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-900">
+            <tbody className="divide-y divide-slate-100">
               {trendTimeline.slice(-10).map((row: any, idx: number) => (
-                <tr key={idx} className="hover:bg-slate-900/60 transition-colors">
-                  <td className="py-2.5 px-3 text-white font-medium">{row.date}</td>
+                <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                  <td className="py-2.5 px-3 text-slate-900 font-medium">{row.date}</td>
                   <td className="py-2.5 px-3">
                     {row.optimized ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3" />
                         Twin Optimized
                       </span>
                     ) : (
-                      <span className="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
                         Conventional
                       </span>
                     )}
                   </td>
                   <td className="py-2.5 px-3">
-                    <span className={row.sor <= 3.5 ? "text-emerald-400 font-bold" : "text-slate-300"}>
+                    <span className={row.sor <= 3.5 ? "text-emerald-700 font-bold" : "text-slate-800"}>
                       {row.sor}
                     </span>
                   </td>
                   <td className="py-2.5 px-3">
-                    <span className={row.energy_per_bbl <= 75 ? "text-amber-400 font-bold" : "text-slate-300"}>
+                    <span className={row.energy_per_bbl <= 75 ? "text-amber-700 font-bold" : "text-slate-800"}>
                       {row.energy_per_bbl}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-slate-200">{row.production_bbl}</td>
+                  <td className="py-2.5 px-3 text-slate-800">{row.production_bbl}</td>
                   <td className="py-2.5 px-3">
                     {row.optimized ? (
-                      <span className="text-emerald-400 text-[11px]">+32% Net Margin</span>
+                      <span className="text-emerald-700 text-[11px] font-bold">+32% Net Margin</span>
                     ) : (
-                      <span className="text-slate-500 text-[11px]">Sub-optimal</span>
+                      <span className="text-slate-400 text-[11px]">Sub-optimal</span>
                     )}
                   </td>
                 </tr>

@@ -1,29 +1,34 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useTwinStore } from "@/lib/store/useTwinStore";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { StatusCard } from "@/components/cards/StatusCard";
-import { RiskBadge } from "@/components/cards/RiskBadge";
+import { WellboreCutaway } from "@/components/twin/WellboreCutaway";
 import { DynoCard } from "@/components/charts/DynoCard";
-import { ViscosityCurve } from "@/components/charts/ViscosityCurve";
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Database,
   Droplet,
   Flame,
   Gauge,
   Layers,
+  MapPin,
+  RefreshCw,
   Sliders,
-  Thermometer,
+  Sparkles,
+  TrendingDown,
   Zap,
 } from "lucide-react";
 
 export default function OverviewPage() {
-  const { selectedWellId } = useTwinStore();
+  const { selectedWellId, setSelectedWellId } = useTwinStore();
+  const [selectedTab, setSelectedTab] = useState<"mechanical" | "thermal" | "economics">("mechanical");
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["well-state", selectedWellId],
@@ -32,270 +37,383 @@ export default function OverviewPage() {
       if (!res.ok) throw new Error("Failed to load well state");
       return res.json();
     },
-    refetchInterval: 3500, // Poll every 3.5s
+    refetchInterval: 3500, // 3.5s SCADA polling
   });
 
   if (isLoading && !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-slate-400">
-        <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-xs font-mono">Connecting to Baghewala Field Twin Telemetry...</span>
+      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-3 text-slate-500">
+        <div className="w-10 h-10 border-3 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
+        <span className="text-xs font-mono">Syncing Baghewala Twin Cockpit Telemetry...</span>
       </div>
     );
   }
 
   if (isError || !data) {
     return (
-      <div className="p-6 rounded-xl bg-rose-950/20 border border-rose-500/30 text-rose-300">
-        <p className="font-bold">Error loading digital twin telemetry</p>
+      <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-soft text-slate-800 max-w-lg mx-auto text-center mt-12">
+        <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+        <p className="font-bold text-base">Error connecting to telemetry stream</p>
         <button
           onClick={() => refetch()}
-          className="mt-3 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-mono"
+          className="mt-4 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono shadow-md hover:bg-slate-800"
         >
-          Retry Connection
+          Retry SCADA Stream
         </button>
       </div>
     );
   }
 
-  const { well, activeCycle, reservoir, srp, demo } = data;
+  const { well, availableWells, activeCycle, reservoir, srp } = data;
   const isEmergency = srp.rod_floating_flag;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={`${well.name} — Digital Twin Overview`}
-        subtitle="Real-time multi-physics telemetry coupling Cyclic Steam Stimulation (CSS) reservoir kinetics with Sucker Rod Pump (SRP) mechanics."
-        badge={
-          <RiskBadge
-            level={srp.risk_level}
-            size="md"
-            labelOverride={isEmergency ? "CRITICAL ROD-FLOATING" : undefined}
-          />
-        }
-        onRefresh={() => refetch()}
-        isFetching={isFetching}
-      />
-
-      {/* Primary Key Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatusCard
-          title="Active CSS Cycle"
-          value={`Day ${activeCycle?.cycle_day ?? 38}`}
-          unit={`/ Cycle #${activeCycle?.cycle_number ?? 3}`}
-          secondaryText="Production Phase (Huff-and-Puff)"
-          trendText="Cooling Phase"
-          trendDirection="neutral"
-          icon={Flame}
-          statusColor="amber"
-        />
-
-        <StatusCard
-          title="Bottom-Hole Viscosity"
-          value={reservoir.viscosity_cp.toLocaleString()}
-          unit="cP"
-          secondaryText={`Temp: ${reservoir.temperature_c}°C (Decaying)`}
-          trendText={reservoir.viscosity_cp > 750 ? "High Drag" : "Nominal"}
-          trendDirection={reservoir.viscosity_cp > 750 ? "warning" : "up"}
-          icon={Droplet}
-          statusColor={reservoir.viscosity_cp > 800 ? "rose" : "sky"}
-        />
-
-        <StatusCard
-          title="SRP Operating State"
-          value={srp.spm}
-          unit="SPM"
-          secondaryText={`Stroke: ${srp.stroke_length}" | Load: ${srp.load.toLocaleString()} lbs`}
-          trendText={isEmergency ? "Throttling Req." : "Stable Velocity"}
-          trendDirection={isEmergency ? "danger" : "up"}
-          icon={Activity}
-          statusColor={isEmergency ? "rose" : "slate"}
-        />
-
-        <StatusCard
-          title="Mechanical Twin Risk"
-          value={srp.risk_level}
-          secondaryText={
-            isEmergency
-              ? "Rod-floating in heavy crude!"
-              : "Clear valve transit & stable fall"
-          }
-          trendText={isEmergency ? "ACTION NEEDED" : "NORMAL OPS"}
-          trendDirection={isEmergency ? "danger" : "up"}
-          icon={AlertTriangle}
-          statusColor={srp.risk_level === "RED" ? "rose" : srp.risk_level === "AMBER" ? "amber" : "emerald"}
-          badge={<RiskBadge level={srp.risk_level} size="sm" />}
-        />
-      </div>
-
-      {/* Emergency Action Banner if Rod Floating */}
-      {isEmergency && (
-        <div className="rounded-xl bg-rose-950/60 border border-rose-500/60 p-4 shadow-lg shadow-rose-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulseSlow">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400 shrink-0">
-              <AlertTriangle className="w-5 h-5 text-rose-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white font-mono flex items-center gap-2">
-                CRITICAL INTERVENTION REQUIRED: ROD-FLOATING DETECTED
-              </h3>
-              <p className="text-xs text-rose-200 mt-1 max-w-3xl">
-                Heavy oil viscous friction (viscosity {reservoir.viscosity_cp} cP) is resisting downward rod motion.
-                Minimum polished rod load has collapsed to {srp.min_load.toLocaleString()} lbs. Risk of rod compression buckling and gearbox impact shock.
-              </p>
-            </div>
-          </div>
+    <div className="space-y-5 pb-8">
+      {/* Hero Header matching screenshot ("Cargo Distribution" style) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1">
+        <div className="flex items-center gap-3">
           <Link
-            href="/optimization"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold font-mono uppercase tracking-wider shrink-0 transition-colors"
+            href="/overview"
+            className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 shadow-soft transition-colors"
           >
-            <span>View Optimizer Advisory</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-        </div>
-      )}
-
-      {/* Secondary Telemetry Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Reservoir Temp</span>
-          <span className="text-lg font-bold font-mono text-orange-400">
-            {reservoir.temperature_c}°C
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">Peak: 254°C</span>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+              Baghewala Well Operations
+            </h1>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              Field: Baghewala (Bikaner-Nagaur Basin) • Heavy Oil 15.2° API • Cyclic Steam Stimulation & SRP
+            </p>
+          </div>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Bottom-Hole Press.</span>
-          <span className="text-lg font-bold font-mono text-sky-400">
-            {reservoir.pressure_bar} bar
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">Initial: 48 bar</span>
-        </div>
-
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Estimated Oil Rate</span>
-          <span className="text-lg font-bold font-mono text-emerald-400">
-            {reservoir.oil_rate_bpd} bpd
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">15.2° API crude</span>
-        </div>
-
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Peak Rod Load</span>
-          <span className={`text-lg font-bold font-mono ${isEmergency ? "text-rose-400" : "text-white"}`}>
-            {srp.load.toLocaleString()} lbs
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">Rating: 24,000 lbs</span>
-        </div>
-
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Min Rod Load</span>
-          <span className={`text-lg font-bold font-mono ${isEmergency ? "text-rose-400" : "text-white"}`}>
-            {srp.min_load.toLocaleString()} lbs
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">Limit: 3,800 lbs</span>
-        </div>
-
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3">
-          <span className="text-[10px] font-mono uppercase text-slate-400 block">Gearbox Torque</span>
-          <span className={`text-lg font-bold font-mono ${srp.gearbox_torque_pct > 80 ? "text-amber-400" : "text-white"}`}>
-            {srp.gearbox_torque_pct}%
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">Permissible: 85%</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-soft text-xs font-mono text-slate-600">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>SCADA 3.5s LIVE</span>
+            <button
+              onClick={() => refetch()}
+              title="Manual Poll Trigger"
+              className="ml-1 text-slate-400 hover:text-slate-700"
+            >
+              <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin text-amber-600" : ""}`} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Dual Panels: Dyno Preview & Reservoir Trajectory */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-mono font-bold uppercase text-slate-300 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-sky-400" />
-              <span>Real-Time Dynamometer Signature</span>
-            </h2>
-            <Link
-              href="/srp-performance"
-              className="text-xs font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1"
-            >
-              <span>Detailed Card</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+      {/* Main Cockpit Layout: 4 Columns (Matching Reference Image) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        {/* COLUMN 1 (Width ~ 3 cols): Available Wells Feed */}
+        <div className="lg:col-span-3 flex flex-col gap-3">
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-soft flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-800 font-sans">
+                  Available Wells
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Rank: P50</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 border-b border-slate-100 pb-2 mb-3 px-1">
+                <span>WELL ID</span>
+                <span>API</span>
+                <span>DEPTH</span>
+                <span>PRODUCTION</span>
+              </div>
+
+              {/* Wells List */}
+              <div className="space-y-2.5">
+                {/* Well 1: BGW-04 (Active - Dark Sleek Card matching reference image) */}
+                <div
+                  onClick={() => setSelectedWellId("well-bgw-04")}
+                  className={`cursor-pointer rounded-2xl p-4 transition-all duration-200 ${
+                    selectedWellId === "well-bgw-04"
+                      ? "bg-[#1A1E26] text-white shadow-darkCard"
+                      : "bg-[#F8FAFC] border border-slate-200 text-slate-800 hover:bg-slate-100"
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                    <span>15.2° API</span>
+                    <span>1,045m</span>
+                    <span className={selectedWellId === "well-bgw-04" ? "text-amber-400" : "text-slate-500"}>
+                      Cycle #3
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between my-1">
+                    <span className="text-base font-extrabold font-mono tracking-tight">
+                      BGW-04
+                    </span>
+                    <span className="text-xs font-mono font-bold flex items-center gap-1 text-emerald-400">
+                      <span>→</span>
+                      <span>148 bpd</span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/60 mt-2">
+                    <span className="truncate flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-amber-400" />
+                      <span>Baghewala South</span>
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold ${isEmergency ? "text-rose-400" : "text-emerald-400"}`}>
+                      {isEmergency ? "ROD-FLOATING" : "PRODUCING"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Well 2: BGW-07 */}
+                <div
+                  onClick={() => setSelectedWellId("well-bgw-07")}
+                  className={`cursor-pointer rounded-2xl p-3.5 transition-all duration-200 ${
+                    selectedWellId === "well-bgw-07"
+                      ? "bg-[#1A1E26] text-white shadow-darkCard"
+                      : "bg-[#F8FAFC] border border-slate-200/90 text-slate-800 hover:bg-slate-100"
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                    <span>14.8° API</span>
+                    <span>1,080m</span>
+                    <span>Cycle #2</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold font-mono">BGW-07</span>
+                    <span className="text-xs font-mono text-slate-600">→ 112 bpd</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1 truncate">
+                    Baghewala Central • Stable
+                  </div>
+                </div>
+
+                {/* Well 3: BGW-12 */}
+                <div
+                  onClick={() => setSelectedWellId("well-bgw-12")}
+                  className={`cursor-pointer rounded-2xl p-3.5 transition-all duration-200 ${
+                    selectedWellId === "well-bgw-12"
+                      ? "bg-[#1A1E26] text-white shadow-darkCard"
+                      : "bg-[#F8FAFC] border border-slate-200/90 text-slate-800 hover:bg-slate-100"
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                    <span>15.5° API</span>
+                    <span>1,020m</span>
+                    <span>Cycle #1</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold font-mono">BGW-12</span>
+                    <span className="text-xs font-mono text-amber-600">Soaking (Day 5)</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1 truncate">
+                    Baghewala North • Heat Ingestion
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Field Bottom Summary */}
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-slate-500 flex justify-between">
+              <span>Total Field Production:</span>
+              <span className="font-bold text-slate-900">260 bbl/d</span>
+            </div>
           </div>
-          <DynoCard
-            data={srp.dyno_card}
-            strokeLength={srp.stroke_length}
+        </div>
+
+        {/* COLUMN 2 (Width ~ 3.5 cols): Centerpiece Wellbore Cutaway Vector Twin */}
+        <div className="lg:col-span-4 min-h-[520px]">
+          <WellboreCutaway
+            depthM={well.depth_m}
+            temperatureC={reservoir.temperature_c}
+            viscosityCp={reservoir.viscosity_cp}
             isFloating={isEmergency}
-            peakLoad={srp.load}
-            minLoad={srp.min_load}
+            spm={srp.spm}
+            strokeLength={srp.stroke_length}
           />
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-mono font-bold uppercase text-slate-300 flex items-center gap-2">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <span>Post-Steam Viscosity & Thermal Decay</span>
-            </h2>
-            <Link
-              href="/css-cycle"
-              className="text-xs font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1"
-            >
-              <span>Cycle History</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+        {/* COLUMN 3 (Width ~ 2.5 cols): Stages & Dynamometer Center */}
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          {/* Cycle Timeline Card (Matching flight milestone route in screenshot) */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-soft">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-800 font-sans">
+                CSS Huff-and-Puff
+              </span>
+              <span className="text-[10px] font-mono text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                Cycle #3
+              </span>
+            </div>
+
+            {/* Stages Arc */}
+            <div className="relative py-2">
+              <div className="h-1 bg-slate-200 rounded-full w-full"></div>
+              <div className="absolute top-2 left-0 h-1 bg-amber-500 rounded-full w-3/4"></div>
+
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 mt-2">
+                <span className="font-bold text-slate-800">INJ</span>
+                <span className="font-bold text-slate-800">SOAK</span>
+                <span className="font-bold text-amber-600">PROD (D-38)</span>
+                <span className="text-slate-400">CUTOFF</span>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono">
+              <span className="text-slate-400">Bottom Temp:</span>
+              <span className="font-bold text-orange-600">{reservoir.temperature_c}°C</span>
+            </div>
           </div>
-          <ViscosityCurve currentDay={activeCycle?.cycle_day ?? 38} />
+
+          {/* Dynamometer Card Preview */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-soft flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-800 font-sans">
+                  Dynamometer
+                </span>
+                <Link
+                  href="/srp-performance"
+                  className="text-[10px] font-mono text-amber-600 hover:underline flex items-center gap-0.5"
+                >
+                  <span>Full</span>
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
+
+              <div className="rounded-2xl bg-slate-950 p-2.5 overflow-hidden">
+                <DynoCard
+                  data={srp.dyno_card}
+                  strokeLength={srp.stroke_length}
+                  isFloating={isEmergency}
+                  peakLoad={srp.load}
+                  minLoad={srp.min_load}
+                />
+              </div>
+            </div>
+
+            <div className="mt-3 text-[10px] font-mono text-slate-500 space-y-1">
+              <div className="flex justify-between">
+                <span>Peak Load:</span>
+                <span className={`font-bold ${isEmergency ? "text-rose-600" : "text-slate-800"}`}>
+                  {srp.load.toLocaleString()} lbs
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Minimum Load:</span>
+                <span className={`font-bold ${isEmergency ? "text-rose-600" : "text-emerald-600"}`}>
+                  {srp.min_load.toLocaleString()} lbs
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Quick Navigation to Optimization & KPI */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-        <Link
-          href="/optimization"
-          className="group rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/40 p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 transition-colors">
-              <Sliders className="w-6 h-6" />
-            </div>
+        {/* COLUMN 4 (Width ~ 3 cols): Well Parameters & Green Checkout CTA */}
+        <div className="lg:col-span-3 flex flex-col justify-between gap-4">
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-soft flex-1 flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white font-mono flex items-center gap-2">
-                Optimization Engine
-                <span className="text-[10px] font-normal px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">
-                  Rule-Based Advisor
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-slate-900 font-sans">
+                  Well Parameters
+                </h3>
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  BGW-04
                 </span>
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Calculate recommended SPM & stroke adjustments to eliminate rod-floating and schedule CSS Cycle #4.
-              </p>
+              </div>
+
+              {/* Segmented Pill Tabs */}
+              <div className="flex bg-slate-100 p-1 rounded-full text-[11px] font-mono mb-4 text-slate-600">
+                <button
+                  onClick={() => setSelectedTab("mechanical")}
+                  className={`flex-1 py-1 rounded-full text-center transition-all ${
+                    selectedTab === "mechanical" ? "bg-white text-slate-900 font-semibold shadow-sm" : ""
+                  }`}
+                >
+                  Mechanical
+                </button>
+                <button
+                  onClick={() => setSelectedTab("thermal")}
+                  className={`flex-1 py-1 rounded-full text-center transition-all ${
+                    selectedTab === "thermal" ? "bg-white text-slate-900 font-semibold shadow-sm" : ""
+                  }`}
+                >
+                  Thermal
+                </button>
+                <button
+                  onClick={() => setSelectedTab("economics")}
+                  className={`flex-1 py-1 rounded-full text-center transition-all ${
+                    selectedTab === "economics" ? "bg-white text-slate-900 font-semibold shadow-sm" : ""
+                  }`}
+                >
+                  Impact
+                </button>
+              </div>
+
+              {/* Telemetry Row Items */}
+              <div className="space-y-2 text-xs font-mono">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Crude Viscosity</span>
+                  <span className="font-bold text-slate-900">{reservoir.viscosity_cp} cP</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Reservoir Temp</span>
+                  <span className="font-bold text-orange-600">{reservoir.temperature_c}°C</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Pump Speed</span>
+                  <span className={`font-bold ${isEmergency ? "text-rose-600" : "text-slate-900"}`}>
+                    {srp.spm} SPM
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Stroke Length</span>
+                  <span className="font-bold text-slate-900">{srp.stroke_length}&quot;</span>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Viscous Drag</span>
+                  <span className={`font-bold ${isEmergency ? "text-rose-600" : "text-slate-900"}`}>
+                    {srp.frictional_drag} lbs
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500">Gearbox Torque</span>
+                  <span className="font-bold text-slate-900">{srp.gearbox_torque_pct}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Checkout Card (Matching the bottom right green checkout in reference screenshot) */}
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <div className="flex items-baseline justify-between mb-3 text-xs font-mono">
+                <div>
+                  <span className="text-[10px] text-slate-400 block uppercase">Lifting Power</span>
+                  <span className="font-bold text-slate-800 text-sm">68.5 kWh/bbl</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block uppercase">Target SOR</span>
+                  <span className="font-bold text-slate-800 text-sm">3.25 t/t</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 block uppercase">Field OPEX</span>
+                  <span className="font-extrabold text-slate-900 text-base">₹5.85 Cr/yr</span>
+                </div>
+              </div>
+
+              {/* Big Vibrant Green CTA Button matching reference image */}
+              <Link
+                href="/optimization"
+                className="w-full py-3 px-4 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 font-bold text-xs font-mono uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                <Zap className="w-4 h-4 fill-slate-950" />
+                <span>{isEmergency ? "Apply 3.2 SPM Fix" : "Execute Twin Optimization"}</span>
+              </Link>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-amber-400 transition-colors" />
-        </Link>
-
-        <Link
-          href="/kpi"
-          className="group rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
-              <Zap className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white font-mono flex items-center gap-2">
-                KPI & Impact Analysis
-                <span className="text-[10px] font-normal px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
-                  -31.6% SOR Reduction
-                </span>
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Explore before-and-after steam-oil ratio efficiency, kWh/bbl energy savings, and Baghewala Field economics.
-              </p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-emerald-400 transition-colors" />
-        </Link>
+        </div>
       </div>
     </div>
   );

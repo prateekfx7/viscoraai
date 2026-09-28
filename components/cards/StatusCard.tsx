@@ -24,34 +24,24 @@ export const StatusCard: React.FC<StatusCardProps> = ({
   icon: Icon,
   badge,
 }) => {
-  const borderColors = {
-    emerald: "border-emerald-500/30 hover:border-emerald-500/50",
-    amber: "border-amber-500/30 hover:border-amber-500/50",
-    rose: "border-rose-500/40 hover:border-rose-500/60 bg-rose-950/10",
-    sky: "border-sky-500/30 hover:border-sky-500/50",
-    slate: "border-slate-800 hover:border-slate-700",
-  }[statusColor];
-
   const iconColors = {
-    emerald: "text-emerald-400 bg-emerald-500/10",
-    amber: "text-amber-400 bg-amber-500/10",
-    rose: "text-rose-400 bg-rose-500/15",
-    sky: "text-sky-400 bg-sky-500/10",
-    slate: "text-slate-400 bg-slate-800/60",
+    emerald: "text-emerald-600 bg-emerald-50 border border-emerald-100",
+    amber: "text-amber-600 bg-amber-50 border border-amber-100",
+    rose: "text-rose-600 bg-rose-50 border border-rose-100",
+    sky: "text-sky-600 bg-sky-50 border border-sky-100",
+    slate: "text-slate-600 bg-slate-100 border border-slate-200",
   }[statusColor];
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-xl bg-slate-900/90 backdrop-blur-sm border p-5 transition-all duration-200 ${borderColors}`}
-    >
+    <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft hover:shadow-card transition-all duration-200">
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-slate-400 font-mono">
+        <span className="text-xs font-semibold text-slate-500 font-sans tracking-wide">
           {title}
         </span>
         <div className="flex items-center gap-2">
           {badge}
           {Icon && (
-            <div className={`p-2 rounded-lg ${iconColors}`}>
+            <div className={`p-2 rounded-xl ${iconColors}`}>
               <Icon className="w-4 h-4" />
             </div>
           )}
@@ -59,24 +49,24 @@ export const StatusCard: React.FC<StatusCardProps> = ({
       </div>
 
       <div className="flex items-baseline gap-2 mb-1.5">
-        <span className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-mono">
+        <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-mono">
           {value}
         </span>
         {unit && <span className="text-sm font-semibold text-slate-400 font-mono">{unit}</span>}
       </div>
 
-      <div className="flex items-center justify-between text-xs mt-2 text-slate-400">
+      <div className="flex items-center justify-between text-xs mt-2 text-slate-500 font-mono">
         {secondaryText && <span className="truncate">{secondaryText}</span>}
         {trendText && (
           <span
-            className={`font-mono text-xs px-1.5 py-0.5 rounded font-medium ${
+            className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
               trendDirection === "danger"
-                ? "bg-rose-500/15 text-rose-400 border border-rose-500/20"
+                ? "bg-rose-100 text-rose-700 border border-rose-200"
                 : trendDirection === "warning"
-                ? "bg-amber-500/15 text-amber-400 border border-amber-500/20"
+                ? "bg-amber-100 text-amber-700 border border-amber-200"
                 : trendDirection === "up"
-                ? "bg-emerald-500/15 text-emerald-400"
-                : "bg-slate-800 text-slate-300"
+                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                : "bg-slate-100 text-slate-700"
             }`}
           >
             {trendText}
