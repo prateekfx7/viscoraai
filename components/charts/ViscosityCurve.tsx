@@ -155,6 +155,7 @@ export const ViscosityCurve: React.FC<ViscosityCurveProps> = ({
 
             {/* Current Day Reference */}
             <ReferenceLine
+              yAxisId="temp"
               x={`D-${currentDay}`}
               stroke="#10B981"
               strokeWidth={1.5}
