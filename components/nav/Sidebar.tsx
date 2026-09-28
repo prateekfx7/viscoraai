@@ -12,24 +12,28 @@ import {
   Flame,
   LayoutGrid,
   RotateCcw,
+  ShieldCheck,
   Sliders,
   Sparkles,
+  Users,
   Zap,
 } from "lucide-react";
 import { useTwinStore } from "@/lib/store/useTwinStore";
 
 const navItems = [
-  { name: "Overview", href: "/overview", icon: LayoutGrid, description: "Cockpit Twin Overview" },
-  { name: "SRP Performance", href: "/srp-performance", icon: Activity, description: "Dyno Card & Drag Telemetry" },
-  { name: "Optimization", href: "/optimization", icon: Sliders, description: "Rule-Based Advisor" },
-  { name: "KPI & Impact", href: "/kpi", icon: BarChart3, description: "SOR & Energy Metrics" },
-  { name: "CSS Cycle", href: "/css-cycle", icon: Flame, description: "Huff-and-Puff Thermal Monitor" },
-  { name: "Alerts", href: "/alerts", icon: AlertOctagon, description: "Real-Time Failure Log" },
+  { name: "Live Cockpit", href: "/overview", icon: LayoutGrid, description: "Overview & Gauges" },
+  { name: "Executive Hub", href: "/app-1", icon: Users, description: "Field Overview & Stats" },
+  { name: "Pump Health", href: "/srp-performance", icon: Activity, description: "Rod Float & Load Cards" },
+  { name: "Auto-Pilot Advisor", href: "/optimization", icon: Sliders, description: "Speed & Heat Optimizer" },
+  { name: "Savings & Impact", href: "/kpi", icon: BarChart3, description: "SOR & Energy Metrics" },
+  { name: "Steam Cycles", href: "/css-cycle", icon: Flame, description: "Huff-and-Puff Heat Map" },
+  { name: "Safety Alarms", href: "/alerts", icon: AlertOctagon, description: "Active Prevention Feed" },
 ];
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { selectedWellId } = useTwinStore();
+  const [autoPilotActive, setAutoPilotActive] = useState(true);
   const [demoState, setDemoState] = useState({
     forceFloating: false,
     manualOverride: false,
@@ -72,38 +76,60 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="hidden lg:flex fixed top-0 bottom-0 left-0 w-64 xl:w-72 bg-white border-r border-slate-200/90 flex-col justify-between p-5 z-40 shadow-soft select-none overflow-y-auto">
-      {/* Top: Branding & Title */}
+      {/* Top: Viscora Brand Title */}
       <div>
         <div className="pb-5 border-b border-slate-100">
           <Link href="/overview" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#8B5E3C] shadow-sm flex items-center justify-center text-white shrink-0">
-              <Flame className="w-5 h-5 fill-amber-300 text-amber-300" />
+            <div className="w-10 h-10 rounded-2xl bg-slate-900 shadow-sm flex items-center justify-center text-white shrink-0">
+              <Zap className="w-5 h-5 fill-emerald-400 text-emerald-400" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold tracking-wider text-[#8B5E3C] uppercase font-sans">
-                  OIL INDIA
-                </span>
-                <span className="text-[9px] text-slate-400 font-mono px-1.5 py-0.5 rounded bg-slate-100">
-                  SIH26120
-                </span>
-              </div>
-              <h1 className="text-sm font-extrabold text-slate-900 tracking-tight leading-tight">
-                Well-to-Surface Twin
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight leading-none font-sans">
+                Viscora
               </h1>
             </div>
           </Link>
 
-          <div className="mt-3 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-            <span>Field: Baghewala</span>
-            <span className="text-slate-800 font-bold">15.2° API</span>
+          <p className="text-[11px] text-slate-500 font-sans mt-2 leading-tight">
+            Autonomous Heavy Oil Well-to-Surface Twin
+          </p>
+
+          {/* Auto-Pilot Toggle Pill */}
+          <div className="mt-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <div>
+                <span className="text-xs font-bold text-slate-900 font-sans block leading-none">
+                  Auto-Pilot
+                </span>
+                <span className="text-[9px] text-slate-500 font-mono">
+                  {autoPilotActive ? "Autonomous Throttling ON" : "Manual Approval Only"}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setAutoPilotActive(!autoPilotActive)}
+              className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${
+                autoPilotActive ? "bg-emerald-600" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm absolute top-0.5 transition-transform ${
+                  autoPilotActive ? "left-5" : "left-1"
+                }`}
+              ></span>
+            </button>
           </div>
         </div>
 
         {/* Navigation List */}
         <nav className="mt-5 space-y-1.5">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-3 block mb-2">
-            Twin Navigation
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-3 block mb-1.5">
+            Modules
           </span>
 
           {navItems.map((item) => {
@@ -116,13 +142,13 @@ export const Sidebar: React.FC = () => {
                 href={item.href}
                 className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 ${
                   active
-                    ? "bg-[#1A1E26] text-white shadow-darkCard scale-[1.02]"
+                    ? "bg-[#1A1E26] text-white shadow-darkCard scale-[1.01]"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
                 }`}
               >
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
-                    active ? "bg-white/10 text-amber-400" : "text-slate-500 group-hover:text-slate-800"
+                    active ? "bg-white/10 text-emerald-400" : "text-slate-500 group-hover:text-slate-800"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -130,7 +156,7 @@ export const Sidebar: React.FC = () => {
                 <div className="flex-1 truncate">
                   <div className="flex items-center justify-between">
                     <span className="truncate">{item.name}</span>
-                    {active && <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>}
+                    {active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </div>
                   <span
                     className={`text-[10px] font-normal block truncate ${
@@ -146,53 +172,51 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Center/Bottom: Scripted Demo Scenario Controller Card */}
+      {/* Scripted Demo Scenario Controller Card */}
       <div className="my-4">
         <div
           className={`rounded-2xl p-3.5 border transition-all ${
             isFloating
-              ? "bg-rose-50 border-rose-300 shadow-sm animate-pulse"
+              ? "bg-amber-50 border-amber-300 shadow-sm"
               : "bg-slate-50 border-slate-200 text-slate-700"
           }`}
         >
           <div className="flex items-center justify-between text-xs font-mono mb-1.5">
             <span className="font-bold flex items-center gap-1.5">
-              <Clock className={`w-3.5 h-3.5 ${isFloating ? "text-rose-500" : "text-amber-500"}`} />
+              <Clock className={`w-3.5 h-3.5 ${isFloating ? "text-amber-600" : "text-slate-500"}`} />
               <span>T+{elapsed}s</span>
             </span>
             <span
               className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                isFloating
-                  ? "bg-rose-600 text-white"
-                  : "bg-emerald-100 text-emerald-800"
+                isFloating ? "bg-amber-600 text-white" : "bg-slate-200 text-slate-700"
               }`}
             >
-              {isFloating ? "EVENT ACTIVE" : `AUTO AT 90s`}
+              {isFloating ? "THICK OIL SHOCK" : `AUTO AT 90s`}
             </span>
           </div>
 
-          <p className="text-[11px] text-slate-600 leading-tight mb-2.5">
+          <p className="text-[11px] text-slate-600 leading-tight mb-2.5 font-sans">
             {isFloating
-              ? "Rod-floating in heavy crude! High viscous drag."
-              : `Baseline telemetry. Scenario triggers in ${countdown}s.`}
+              ? "Cold oil floating rod! Auto-Pilot adjusted speed."
+              : `Simulates thick oil floating event in ${countdown}s.`}
           </p>
 
           <div className="flex items-center gap-2">
             {!isFloating ? (
               <button
                 onClick={() => triggerEvent("trigger_floating")}
-                className="flex-1 py-1.5 px-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-mono font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer transition-colors"
+                className="flex-1 py-1.5 px-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-mono font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer transition-colors"
               >
                 <FastForward className="w-3 h-3" />
-                <span>Simulate Now</span>
+                <span>Simulate Shock</span>
               </button>
             ) : (
               <button
                 onClick={() => triggerEvent("clear_floating")}
                 className="flex-1 py-1.5 px-2 rounded-xl bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 text-[11px] font-mono font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer transition-colors"
               >
-                <Zap className="w-3 h-3 fill-slate-950" />
-                <span>Apply Fix</span>
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Reset Baseline</span>
               </button>
             )}
 
@@ -212,7 +236,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between text-[11px] font-mono mb-2 text-slate-500">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span className="text-emerald-700 font-bold">SCADA 3.5s LINK</span>
+            <span className="text-emerald-700 font-bold">SCADA 3.5s FEED</span>
           </span>
           <span>ONLINE</span>
         </div>
@@ -226,7 +250,7 @@ export const Sidebar: React.FC = () => {
               Jitendra Mourya
             </span>
             <span className="text-[10px] text-slate-400 font-mono block truncate">
-              Oil India Field Engineer
+              Baghewala Field Ops
             </span>
           </div>
         </div>

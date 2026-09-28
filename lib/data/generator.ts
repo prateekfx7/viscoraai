@@ -77,21 +77,21 @@ export function resetDemoState(): void {
  * Baghewala typical: Peak steam temp ~260°C decays toward native reservoir ~45°C.
  */
 export function calculateTemperatureDecay(daysPostSoak: number): number {
-  const T_res = 45.0; // Native reservoir temp (°C)
+  const T_res = 47.0; // Native reservoir temp (°C) per SIH26120 (46–48°C)
   const T_peak = 255.0; // Peak temp after steam injection & 7-day soak (°C)
   const decayConstant = 0.038; // Thermal diffusion rate in Jodhpur sandstone
   return Number((T_res + (T_peak - T_res) * Math.exp(-decayConstant * daysPostSoak)).toFixed(1));
 }
 
 /**
- * Calculates dynamic viscosity (cP) using Andrade-Walther heavy oil relation for Baghewala crude (15° API).
- * Low temp (~45°C) -> 7,000+ cP
- * Day 38 (~94°C) -> ~850 cP (elevated drag & rod-floating hazard)
- * High temp (~250°C) -> 15-28 cP
+ * Calculates dynamic viscosity (cP) using Andrade-Walther heavy oil relation for Baghewala crude (17.5° API).
+ * Low temp (~47°C native) -> 12,000+ cP un-steamed (immobile)
+ * Day 38 (~94°C) -> ~850 cP (elevated drag & rod-floating hazard threshold)
+ * High temp (~250°C soak) -> 18-28 cP fluid
  */
 export function calculateViscosity(tempCelsius: number): number {
   const T_kelvin = tempCelsius + 273.15;
-  // Calibrated for Baghewala 15.2° API heavy crude
+  // Calibrated for Baghewala 17.5° API heavy crude in Jodhpur Sandstone
   const A = -6.85;
   const B = 5000.0;
   const lnVisc = A + B / T_kelvin;

@@ -24,13 +24,13 @@ export interface SORTrendProps {
 
 export const SORTrend: React.FC<SORTrendProps> = ({ data = [] }) => {
   return (
-    <div className="rounded-xl bg-slate-950 border border-slate-800 p-4">
+    <div className="rounded-2xl bg-slate-950 border border-slate-800 p-5 sm:p-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
-          <span className="text-xs font-mono font-semibold uppercase text-slate-300">
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
             Steam-Oil Ratio (SOR) Efficiency Trend
           </span>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-400 font-sans mt-0.5">
             Tonnes steam injected per tonne heavy oil produced (Lower is better)
           </p>
         </div>

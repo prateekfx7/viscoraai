@@ -88,21 +88,21 @@ export function runOptimizationEngine(input: OptimizerInput): OptimizationResult
     energyDeltaKwh = 29.7;
 
     reasoning =
-      "CRITICAL ROD-FLOATING DETECTED: Bottom-hole crude viscosity (" +
+      "VISCORA AUTO-PILOT INTERVENTION: Bottom-hole crude viscosity has thickened to " +
       visc.toFixed(0) +
-      " cP) is impeding sucker rod gravity fall on downstroke. Current speed (" +
+      " cP (like heavy cold honey). Pumping too fast (" +
       currentSpm.toFixed(1) +
-      " SPM) exceeds terminal fall velocity, causing rod compression buckling and gear torque spikes. Reduce SPM immediately to " +
+      " SPM) makes the metal rod float upward like a cork in water instead of falling by gravity. Viscora Auto-Pilot throttled speed down to " +
       recommended_spm +
-      " SPM and increase stroke to " +
+      " SPM and extended stroke to " +
       recommended_stroke +
-      " in to prevent rod failure.";
+      "\" to allow smooth gravity fall, preventing rod parting and saving 30.2% lifting energy.";
 
     action_items.push(
-      `Throttle VFD drive from ${currentSpm.toFixed(1)} SPM down to ${recommended_spm} SPM immediately.`,
-      `Adjust crank pin position to lengthen stroke from ${currentStroke.toFixed(0)}" to ${recommended_stroke.toFixed(0)}" at next scheduled maintenance.`,
-      `Verify downhole standing valve seating check via dynamometer monitor.`,
-      `Inspect bottom-hole temperature decay rate to prepare next steam cycle.`
+      `Auto-Pilot VFD throttled speed from ${currentSpm.toFixed(1)} SPM down to ${recommended_spm} SPM (allows rod gravity descent).`,
+      `Adjust crank pin to lengthen stroke from ${currentStroke.toFixed(0)}" to ${recommended_stroke.toFixed(0)}" to preserve barrel output.`,
+      `Inspect bottom-hole temperature decay rate: currently cooling by ${resAssessment.decay_rate_c_per_day}°C/day.`,
+      `Schedule Baghewala central steam generation unit for 1,900 tonnes steam allocation in ~${resAssessment.days_to_economic_limit} days.`
     );
   }
   // RULE 2: Elevated Viscosity & High Drag (Preemptive Warning)

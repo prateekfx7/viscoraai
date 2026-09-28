@@ -61,24 +61,24 @@ export const DynoCard: React.FC<DynoCardProps> = ({
   const xTicks = [0, 20, 40, 60, 80, 100];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl bg-slate-950 border border-slate-800 p-4">
+    <div className="relative w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 p-5 sm:p-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-semibold uppercase text-slate-300">
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
               Surface & Downhole Dynamometer Card
             </span>
             {isFloating ? (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold">
                 DISTORTED: ROD-FLOATING DETECTED
               </span>
             ) : (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">
                 NORMAL FULL CARD
               </span>
             )}
           </div>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-400 font-sans mt-0.5">
             Polished Rod Load vs Stroke Position (Inches)
           </p>
         </div>

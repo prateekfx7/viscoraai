@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import App1 from "@/components/ui/app-1";
 
-export default function Home() {
-  redirect("/overview");
+export default function HomePage() {
+  return <App1 />;
 }

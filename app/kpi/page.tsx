@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTwinStore } from "@/lib/store/useTwinStore";
 import { SORTrend } from "@/components/charts/SORTrend";
 import { EnergyTrend } from "@/components/charts/EnergyTrend";
+import { DashboardShell } from "@/components/layout/DashboardShell";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -57,227 +58,237 @@ export default function KpiPage() {
   const { summary, trendTimeline, demoScenarioActive } = data;
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
-            KPI & Impact Analysis Dashboard
-          </h1>
-          <p className="text-xs text-slate-500 font-mono mt-0.5">
-            Quantifying Steam-to-Oil Ratio (SOR) efficiency, electrical lifting energy reduction, and Baghewala Field operational savings.
-          </p>
+    <DashboardShell title="Field Savings & Economic Impact">
+      <div className="flex flex-col gap-6">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-sans">
+              KPI & Impact Analysis Dashboard
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-sans mt-1">
+              Quantifying Steam-to-Oil Ratio (SOR) efficiency, electrical lifting energy reduction, and Baghewala Field operational savings.
+            </p>
+          </div>
+          <span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-mono px-3.5 py-1.5 rounded-full font-bold">
+            JUDGE PRESENTATION VIEW
+          </span>
         </div>
-        <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-mono px-3.5 py-1.5 rounded-full font-bold">
-          JUDGE PRESENTATION VIEW
-        </span>
-      </div>
 
-      {/* Real-time Demo Hook Callout (Before / After Delta) */}
-      {demoScenarioActive ? (
-        <div className="rounded-3xl bg-rose-50 border border-rose-300 p-5 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-rose-600 text-white shrink-0 shadow-sm">
-              <Zap className="w-5 h-5 text-white animate-pulse" />
+        {/* Real-time Demo Hook Callout (Before / After Delta) */}
+        {demoScenarioActive ? (
+          <div className="rounded-2xl bg-rose-500/10 border border-rose-500/30 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-rose-600 text-white shrink-0 shadow-sm">
+                <Zap className="w-5 h-5 text-white animate-pulse" />
+              </div>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-950 dark:text-rose-300 font-sans">
+                  Live Scenario Impact Delta: Uncorrected Rod-Floating vs Optimized SPM
+                </span>
+                <p className="text-xs text-rose-900 dark:text-rose-400 mt-1 max-w-3xl leading-relaxed font-sans">
+                  Unthrottled pump at 5.8 SPM causes gear over-torque and consumes <strong className="font-mono">98.4 kWh/bbl</strong> with immediate rod parting hazard.
+                  Applying twin recommendation (3.2 SPM) brings lifting power down to <strong className="font-mono">68.5 kWh/bbl</strong> (<strong className="font-mono">-29.9 kWh/bbl savings</strong>).
+                </p>
+              </div>
             </div>
+            <span className="text-xs font-mono font-bold px-4 py-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
+              30.2% Net Power Saved
+            </span>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-card border border-border/80 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-sm font-bold uppercase text-foreground font-sans">
+                  Digital Twin Validation vs Oil India Limited Baghewala Baselines
+                </span>
+                <p className="text-xs text-muted-foreground font-sans mt-0.5">
+                  Continuous closed-loop optimization achieves double-digit reduction in both steam intensity and pump wear.
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-mono font-bold text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
+              Field Validated
+            </span>
+          </div>
+        )}
+
+        {/* Main Impact Comparison Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Metric 1: SOR */}
+          <div className="rounded-2xl bg-card border border-border/80 p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-rose-900 font-sans">
-                Live Scenario Impact Delta: Uncorrected Rod-Floating vs Optimized SPM
-              </span>
-              <p className="text-xs text-rose-800 mt-1 max-w-3xl leading-relaxed">
-                Unthrottled pump at 5.8 SPM causes gear over-torque and consumes <strong>98.4 kWh/bbl</strong> with immediate rod parting hazard.
-                Applying twin recommendation (3.2 SPM) brings lifting power down to <strong>68.5 kWh/bbl</strong> (<strong>-29.9 kWh/bbl savings</strong>).
-              </p>
+              <div className="flex items-center justify-between text-xs font-mono text-muted-foreground mb-2">
+                <span className="uppercase font-semibold tracking-wider">Steam-Oil Ratio (SOR)</span>
+                <Flame className="w-4 h-4 text-orange-500" />
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 tabular-nums">
+                  {summary.optimized.sor}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">t/t (Optimized)</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 mt-2 font-bold">
+                <ArrowDownRight className="w-4 h-4" />
+                <span>-{summary.improvements.sor_reduction_pct}% Steam Reduction</span>
+              </div>
+            </div>
+            <div className="text-[11px] font-mono text-muted-foreground mt-3 pt-2 border-t border-border/60">
+              Baseline: {summary.baseline.sor} t/t
             </div>
           </div>
-          <span className="text-xs font-mono font-bold px-4 py-2 rounded-2xl bg-[#22C55E] text-slate-950 shrink-0 shadow-md">
-            30.2% Net Power Saved
-          </span>
-        </div>
-      ) : (
-        <div className="rounded-3xl bg-white border border-slate-200/90 p-4 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
-              <Award className="w-5 h-5" />
-            </div>
+
+          {/* Metric 2: Energy per barrel */}
+          <div className="rounded-2xl bg-card border border-border/80 p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase text-slate-900 font-sans">
-                Digital Twin Validation vs Oil India Limited Baghewala Baselines
-              </span>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">
-                Continuous closed-loop optimization achieves double-digit reduction in both steam intensity and pump wear.
-              </p>
+              <div className="flex items-center justify-between text-xs font-mono text-muted-foreground mb-2">
+                <span className="uppercase font-semibold tracking-wider">Lifting Energy</span>
+                <Zap className="w-4 h-4 text-amber-500" />
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-2xl sm:text-3xl font-extrabold font-mono text-amber-600 tabular-nums">
+                  {summary.optimized.energy_kwh_bbl}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">kWh/bbl</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 mt-2 font-bold">
+                <ArrowDownRight className="w-4 h-4" />
+                <span>-{summary.improvements.energy_savings_pct}% Power Conserved</span>
+              </div>
+            </div>
+            <div className="text-[11px] font-mono text-muted-foreground mt-3 pt-2 border-t border-border/60">
+              Baseline: {summary.baseline.energy_kwh_bbl} kWh/bbl
             </div>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-            Field Validated
-          </span>
-        </div>
-      )}
 
-      {/* Main Impact Comparison Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: SOR */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-            <span className="uppercase">Steam-Oil Ratio (SOR)</span>
-            <Flame className="w-4 h-4 text-orange-500" />
+          {/* Metric 3: Production rate */}
+          <div className="rounded-2xl bg-card border border-border/80 p-5 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-muted-foreground mb-2">
+                <span className="uppercase font-semibold tracking-wider">Net Heavy Crude Lift</span>
+                <Droplets className="w-4 h-4 text-sky-500" />
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-2xl sm:text-3xl font-extrabold font-mono text-sky-600 tabular-nums">
+                  {summary.optimized.production_bpd}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">bpd</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 mt-2 font-bold">
+                <ArrowUpRight className="w-4 h-4" />
+                <span>+{summary.improvements.production_lift_pct}% Production Lift</span>
+              </div>
+            </div>
+            <div className="text-[11px] font-mono text-muted-foreground mt-3 pt-2 border-t border-border/60">
+              Baseline: {summary.baseline.production_bpd} bpd
+            </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-emerald-600">
-              {summary.optimized.sor}
+
+          {/* Metric 4: Annualized Economics */}
+          <div className="rounded-2xl bg-slate-900 text-white p-5 border border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+                <span className="uppercase font-semibold tracking-wider">Baghewala Field OPEX</span>
+                <Coins className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="flex items-baseline gap-1.5 mb-1">
+                <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white tabular-nums">
+                  ₹{summary.fieldEconomics.cost_savings_inr_cr}
+                </span>
+                <span className="text-xs font-mono text-slate-400">Crores/yr</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2 font-bold">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Payback: {summary.fieldEconomics.payback_period_months} months</span>
+              </div>
+            </div>
+            <div className="text-[11px] font-mono text-slate-400 mt-3 pt-2 border-t border-slate-800">
+              Steam saved: {summary.fieldEconomics.steam_saved_tonnes_yr.toLocaleString()} tonnes/yr
+            </div>
+          </div>
+        </div>
+
+        {/* Main Dual Charts: SOR Trend and Energy Trend */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+          <div>
+            <SORTrend data={trendTimeline} />
+          </div>
+          <div>
+            <EnergyTrend data={trendTimeline} />
+          </div>
+        </div>
+
+        {/* 30-Day Historical Snapshot Table */}
+        <div className="rounded-2xl bg-card border border-border/80 p-5 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-amber-500" />
+              <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                30-Day Telemetry Snapshot Log (Well BGW-04)
+              </h3>
+            </div>
+            <span className="text-xs font-mono text-muted-foreground">
+              Showing latest 10 periods
             </span>
-            <span className="text-xs font-mono text-slate-400">t/t (Optimized)</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
-            <ArrowDownRight className="w-4 h-4" />
-            <span>-{summary.improvements.sor_reduction_pct}% Steam Reduction</span>
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
-            Baseline: {summary.baseline.sor} t/t
-          </div>
-        </div>
 
-        {/* Metric 2: Energy per barrel */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-            <span className="uppercase">Lifting Energy</span>
-            <Zap className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-amber-600">
-              {summary.optimized.energy_kwh_bbl}
-            </span>
-            <span className="text-xs font-mono text-slate-400">kWh/bbl</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
-            <ArrowDownRight className="w-4 h-4" />
-            <span>-{summary.improvements.energy_savings_pct}% Power Conserved</span>
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
-            Baseline: {summary.baseline.energy_kwh_bbl} kWh/bbl
-          </div>
-        </div>
-
-        {/* Metric 3: Production rate */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-            <span className="uppercase">Net Heavy Crude Lift</span>
-            <Droplets className="w-4 h-4 text-sky-500" />
-          </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-sky-600">
-              {summary.optimized.production_bpd}
-            </span>
-            <span className="text-xs font-mono text-slate-400">bpd</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 mt-2 font-bold">
-            <ArrowUpRight className="w-4 h-4" />
-            <span>+{summary.improvements.production_lift_pct}% Production Lift</span>
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-100">
-            Baseline: {summary.baseline.production_bpd} bpd
-          </div>
-        </div>
-
-        {/* Metric 4: Annualized Economics */}
-        <div className="rounded-3xl bg-[#1A1E26] text-white p-5 shadow-darkCard">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-            <span className="uppercase">Baghewala Field OPEX</span>
-            <Coins className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="flex items-baseline gap-1.5 mb-1">
-            <span className="text-3xl font-extrabold font-mono text-white">
-              ₹{summary.fieldEconomics.cost_savings_inr_cr}
-            </span>
-            <span className="text-xs font-mono text-slate-400">Crores/yr</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 mt-2">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Payback: {summary.fieldEconomics.payback_period_months} months</span>
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 mt-2 pt-2 border-t border-slate-800">
-            Steam saved: {summary.fieldEconomics.steam_saved_tonnes_yr.toLocaleString()} tonnes/yr
-          </div>
-        </div>
-      </div>
-
-      {/* Main Dual Charts: SOR Trend and Energy Trend */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <SORTrend data={trendTimeline} />
-        </div>
-        <div>
-          <EnergyTrend data={trendTimeline} />
-        </div>
-      </div>
-
-      {/* 30-Day Historical Snapshot Table */}
-      <div className="rounded-3xl bg-white border border-slate-200/90 p-5 shadow-soft">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-amber-500" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-sans">
-              30-Day Telemetry Snapshot Log (Well BGW-04)
-            </h3>
-          </div>
-          <span className="text-[11px] font-mono text-slate-400">
-            Showing latest 10 periods
-          </span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
-            <thead>
-              <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px]">
-                <th className="py-2.5 px-3">Date</th>
-                <th className="py-2.5 px-3">Control Regime</th>
-                <th className="py-2.5 px-3">SOR (t/t)</th>
-                <th className="py-2.5 px-3">Energy (kWh/bbl)</th>
-                <th className="py-2.5 px-3">Production (bbl/d)</th>
-                <th className="py-2.5 px-3">Efficiency Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {trendTimeline.slice(-10).map((row: any, idx: number) => (
-                <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-2.5 px-3 text-slate-900 font-medium">{row.date}</td>
-                  <td className="py-2.5 px-3">
-                    {row.optimized ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Twin Optimized
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
-                        Conventional
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-3">
-                    <span className={row.sor <= 3.5 ? "text-emerald-700 font-bold" : "text-slate-800"}>
-                      {row.sor}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-3">
-                    <span className={row.energy_per_bbl <= 75 ? "text-amber-700 font-bold" : "text-slate-800"}>
-                      {row.energy_per_bbl}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-3 text-slate-800">{row.production_bbl}</td>
-                  <td className="py-2.5 px-3">
-                    {row.optimized ? (
-                      <span className="text-emerald-700 text-[11px] font-bold">+32% Net Margin</span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">Sub-optimal</span>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-mono">
+              <thead>
+                <tr className="border-b border-border/60 text-muted-foreground uppercase text-[10px]">
+                  <th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">Control Regime</th>
+                  <th className="py-2.5 px-3">SOR (t/t)</th>
+                  <th className="py-2.5 px-3">Energy (kWh/bbl)</th>
+                  <th className="py-2.5 px-3">Production (bbl/d)</th>
+                  <th className="py-2.5 px-3">Efficiency Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {trendTimeline.slice(-10).map((row: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-muted/40 transition-colors">
+                    <td className="py-2.5 px-3 text-foreground font-medium">{row.date}</td>
+                    <td className="py-2.5 px-3">
+                      {row.optimized ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Twin Optimized
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                          Conventional
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className={row.sor <= 3.5 ? "text-emerald-600 font-bold" : "text-foreground"}>
+                        {row.sor}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className={row.energy_per_bbl <= 75 ? "text-amber-600 font-bold" : "text-foreground"}>
+                        {row.energy_per_bbl}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-foreground">{row.production_bbl}</td>
+                    <td className="py-2.5 px-3">
+                      {row.optimized ? (
+                        <span className="text-emerald-600 text-[11px] font-bold">+32% Net Margin</span>
+                      ) : (
+                        <span className="text-muted-foreground text-[11px]">Sub-optimal</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    </DashboardShell>
+);
 }
