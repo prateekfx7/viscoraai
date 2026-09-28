@@ -17,6 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="stylesheet" href="/tailwind.css" />
+      </head>
       <body className="bg-[#090D16] text-slate-100 min-h-screen flex antialiased selection:bg-amber-500/30 selection:text-amber-200">
         <Providers>
           <Sidebar />
