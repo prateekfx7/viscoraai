@@ -1,0 +1,104 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Well {
+  id               String             @id @default(cuid())
+  name             String             @unique // e.g. "BGW-04 (Baghewala South)"
+  field            String             @default("Baghewala")
+  api_gravity      Float              @default(15.2) // typical Baghewala extra heavy crude 14-16 API
+  depth_m          Float              @default(1050.0) // reservoir depth in meters
+  formation        String             @default("Jodhpur Sandstone")
+  operator         String             @default("Oil India Limited")
+  status           String             @default("PRODUCING") // INJECTING, SOAKING, PRODUCING, SHUT_IN
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  cssCycles        CssCycle[]
+  reservoirReadings ReservoirReading[]
+  srpReadings      SrpReading[]
+  alerts           Alert[]
+  kpiSnapshots     KpiSnapshot[]
+}
+
+model CssCycle {
+  id                 String   @id @default(cuid())
+  well_id            String
+  cycle_number       Int
+  steam_volume       Float    // in metric tonnes, e.g. 1850 tonnes
+  injection_pressure Float    // in bar / psi (e.g. 95 bar)
+  soak_time_days     Int      // e.g. 7 days
+  start_date         DateTime
+  end_date           DateTime?
+  status             String   @default("COMPLETED") // COMPLETED, ACTIVE, PLANNED
+  steam_quality      Float    @default(0.75) // 75-80% steam quality
+  peak_temp_c        Float    @default(265.0)
+
+  well               Well     @relation(fields: [well_id], references: [id], onDelete: Cascade)
+  createdAt          DateTime @default(now())
+}
+
+model ReservoirReading {
+  id                  String   @id @default(cuid())
+  well_id             String
+  timestamp           DateTime @default(now())
+  temperature         Float    // reservoir/bottom-hole temperature in °C (decays from ~240°C down to ~55°C)
+  predicted_viscosity Float    // calculated/predicted dynamic viscosity in cP (centipoise)
+  pressure_bar        Float    @default(45.0) // bottom hole pressure
+  oil_rate_bpd        Float    @default(120.0) // barrels of oil per day
+
+  well                Well     @relation(fields: [well_id], references: [id], onDelete: Cascade)
+
+  @@index([well_id, timestamp])
+}
+
+model SrpReading {
+  id                String   @id @default(cuid())
+  well_id           String
+  timestamp         DateTime @default(now())
+  spm               Float    // strokes per minute (e.g. 4.5 - 7.5)
+  stroke_length     Float    // inches (e.g. 86.0 - 100.0)
+  load              Float    // peak polished rod load in lbs (e.g. 18,500 lbs)
+  min_load          Float    @default(4500.0) // minimum load in lbs
+  rod_floating_flag Boolean  @default(false)
+  frictional_drag   Float    @default(1200.0) // lbs
+  card_data_json    String?  // JSON string containing array of { position: number, load: number, downholeLoad?: number }
+  gearbox_torque_pct Float   @default(68.0) // % of rating
+
+  well              Well     @relation(fields: [well_id], references: [id], onDelete: Cascade)
+
+  @@index([well_id, timestamp])
+}
+
+model Alert {
+  id           String   @id @default(cuid())
+  well_id      String
+  type         String   // "ROD_FLOATING", "HIGH_VISCOSITY", "CYCLE_TRIGGER", "PUMP_OFF", "OVERLOAD"
+  severity     String   // "CRITICAL", "WARNING", "INFO"
+  message      String
+  timestamp    DateTime @default(now())
+  acknowledged Boolean  @default(false)
+
+  well         Well     @relation(fields: [well_id], references: [id], onDelete: Cascade)
+
+  @@index([well_id, timestamp])
+}
+
+model KpiSnapshot {
+  id             String   @id @default(cuid())
+  well_id        String
+  date           DateTime
+  sor            Float    // Steam-Oil Ratio (m3 steam equivalent / m3 oil or t/t)
+  energy_per_bbl Float    // Energy per barrel in kWh/bbl
+  production_bbl Float    // Cumulative/daily production in bbl
+  optimized      Boolean  @default(false) // Whether this period represents optimized twin control
+
+  well           Well     @relation(fields: [well_id], references: [id], onDelete: Cascade)
+
+  @@index([well_id, date])
+}
